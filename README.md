@@ -22,6 +22,7 @@ Please adapt these three settings to your environment:
 * `domain` in `backends.py` should be the domain part of the queues/agents you want to display
 * `URI` in `queuemon.py` to access `mod_xml_rpc`
 * `hide_agents` can contain agents that should never be shown
+* `hide_queues` can contain queues that should never be shown and it's agent too
 
 ## ToDo
 

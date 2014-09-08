@@ -25,11 +25,16 @@ from urllib import urlencode
 from time import strftime
 from datetime import datetime
 import time
+import re
 from backends import CallcenterStatusBackend
 
 app = Flask(__name__)
 
 backend = CallcenterStatusBackend
+
+hide_queues = (
+    'somequeue@mydomain.example.com',
+    )
 
 hide_agents = (
     'someagent@mydomain.example.com',
@@ -88,6 +93,11 @@ def status():
 def status_content():
     fs = backend(URI)
     agents = fs.get_agents()
+    for b in hide_queues:
+       b = re.sub('^.*@',"", b)
+       for a in agents.keys():
+           if b in a:
+               del agents[a]
     for a in agents.keys():
         if a in hide_agents:
             del agents[a]
@@ -96,6 +106,9 @@ def status_content():
             'free': len([a['name'] for a in agents.itervalues() if a['status'] != 'Logged Out' and a.get('callstate') is None])
             }
     queues = fs.get_queues()
+    for a in queues.keys():
+        if a in hide_queues:
+            del queues[a]
     clock = strftime('%H:%M') if request.args.get('showclock') and request.args['showclock'] != 0 else None
     return render_template('status_content.html', agents=agents, agent_stats=agent_stats, queues=queues, clock=clock)
 
